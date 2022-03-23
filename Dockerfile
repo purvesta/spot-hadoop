@@ -1,7 +1,8 @@
-FROM ubuntu:16.04
+FROM ubuntu:20.04
 
 # set environment vars
 ENV HADOOP_HOME /opt/hadoop
+ENV HIVE_HOME /opt/hive
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 
 # install packages
@@ -13,11 +14,15 @@ RUN \
   openjdk-8-jdk
 
 
-# download and extract hadoop, set JAVA_HOME in hadoop-env.sh, update path
+##########
+# HADOOP #
+##########
+
+# copy over and extract hadoop, set JAVA_HOME in hadoop-env.sh, update path
+COPY ./archives/hadoop-3.3.2.tar.gz /
 RUN \
-  wget http://apache.mirrors.tds.net/hadoop/common/hadoop-3.2.1/hadoop-3.2.1.tar.gz && \
-  tar -xzf hadoop-3.2.1.tar.gz && \
-  mv hadoop-3.2.1 $HADOOP_HOME && \
+  tar -xzf hadoop-3.3.2.tar.gz && \
+  mv hadoop-3.3.2 $HADOOP_HOME && \
   echo "export JAVA_HOME=$JAVA_HOME" >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh && \
   echo "PATH=$PATH:$HADOOP_HOME/bin" >> ~/.bashrc
 
@@ -34,6 +39,21 @@ ADD configs/*xml $HADOOP_HOME/etc/hadoop/
 ADD configs/ssh_config /root/.ssh/config
 RUN chmod 0600 /root/.ssh/config
 
+########
+# HIVE #
+########
+
+# copy over and extract hadoop, set JAVA_HOME in hadoop-env.sh, update path
+COPY ./archives/apache-hive-3.1.2-bin.tar.gz /
+RUN \
+  tar -xzf apache-hive-3.1.2-bin.tar.gz && \
+  mv apache-hive-3.1.2-bin $HIVE_HOME && \
+  echo "export HIVE_HOME=$HIVE_HOME" >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh && \
+  echo "PATH=$PATH:$HIVE_HOME/bin" >> ~/.bashrc
+
+##################
+# START SERVICES #
+##################
 
 # copy script to start hadoop
 ADD start-hadoop.sh start-hadoop.sh

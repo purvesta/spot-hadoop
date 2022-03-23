@@ -1,6 +1,6 @@
 #!/bin/bash
 
-_term() { 
+_term() {
   echo "Caught SIGTERM signal!"
   exit 0
 }
@@ -29,6 +29,13 @@ $HADOOP_HOME/bin/hdfs dfs -mkdir /user/root
 $HADOOP_HOME/sbin/start-yarn.sh
 #$HADOOP_HOME/sbin/mr-jobhistory-daemon.sh start historyserver
 $HADOOP_HOME/bin/mapred --daemon start historyserver
+
+# create default hive paths
+$HADOOP_HOME/bin/hadoop fs -mkdir /tmp
+$HADOOP_HOME/bin/hadoop fs -mkdir /user/hive/warehouse
+$HADOOP_HOME/bin/hadoop fs -chmod g+w /tmp
+$HADOOP_HOME/bin/hadoop fs -chmod g+w /user/hive/warehouse
+
 
 # keep container running
 #tail -f /dev/null
